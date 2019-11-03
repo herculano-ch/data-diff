@@ -70,12 +70,13 @@ defmodule DataDiff do
     case Cachex.exists?(:diff_cache, "v0") do
       {:ok, false} ->
         Logger.info("mandando")
-        Task.async(fn -> Cachex.put(:diff_cache, "v0", putting_on_cache(flow)) end)
+        map_set = putting_on_cache(flow)
+        Task.async(fn -> Cachex.put(:diff_cache, "v0", map_set) end)
 
         Logger.info("contando")
-        count = Flow.map(flow, & &1.email) |> Enum.count()
+        count = map_set |> MapSet.size()
         Logger.info("contei")
-        {:ok, mapping_result(0, 0, count)} # 3s
+        {:ok, mapping_result(0, 0, count)}
 
       {:ok, true}  -> proc_diff(flow)
       {:error, _} -> {:error, "No cache found"}
